@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('password');
             $table->unsignedTinyInteger('age')->nullable();
             $table->string('nationality', 191)->nullable();
-            $table->enum('role', ['user', 'coach', 'admin'])->nullable();
+            $table->enum('role', ['user', 'coach', 'mod'])->nullable();
             $table->text('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
