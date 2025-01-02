@@ -39,5 +39,7 @@ RUN npm config set cache /var/cache/npm
 # Application setup
 WORKDIR /var/www/html
 COPY . .
+COPY .env /var/www/html/.env
 RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data storage bootstrap/cache
+
