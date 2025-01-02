@@ -1,57 +1,46 @@
 pipeline {
     agent any
     environment {
-        DOCKER_COMPOSE = 'docker-compose'
-        APP_NAME = 'laravel-app'
+        DDEV_PROJECT = 'ec25'
+        COMPOSE_PROJECT_NAME = "ec_prod"
     }
-    
+
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        
         stage('Build') {
             steps {
-                sh """
-                    ${DOCKER_COMPOSE} build
-                    ${DOCKER_COMPOSE} run --rm app composer install --no-dev
-                    ${DOCKER_COMPOSE} run --rm app php artisan key:generate
-                """
+                sh '''
+                    docker-compose build
+                    docker-compose run --rm app composer install --no-dev
+                    docker-compose run --rm app php artisan key:generate
+                    docker-compose run --rm app npm install
+                    docker-compose run --rm app npm run build
+                '''
             }
         }
-        
+
         stage('Test') {
             steps {
-                sh "${DOCKER_COMPOSE} run --rm app php artisan test"
+                sh 'docker-compose run --rm app php artisan test'
             }
         }
-        
-        stage('Database') {
-            steps {
-                sh "${DOCKER_COMPOSE} run --rm app php artisan migrate --force"
-            }
-        }
-        
+
         stage('Deploy') {
             steps {
-                sh """
-                    ${DOCKER_COMPOSE} down
-                    ${DOCKER_COMPOSE} up -d
-                    ${DOCKER_COMPOSE} run --rm app php artisan cache:clear
-                    ${DOCKER_COMPOSE} run --rm app php artisan config:cache
-                """
+                sh '''
+                    docker-compose down
+                    docker-compose up -d
+                    docker-compose run --rm app php artisan migrate --force
+                    docker-compose run --rm app php artisan config:cache
+                    docker-compose run --rm app php artisan route:cache
+                    docker-compose run --rm app php artisan view:cache
+                '''
             }
         }
     }
-    
+
     post {
         failure {
-            sh "${DOCKER_COMPOSE} down"
-            mail to: 'admin@example.com',
-                 subject: "Failed Pipeline: ${env.JOB_NAME}",
-                 body: "Pipeline failure: ${env.BUILD_URL}"
+            sh 'docker-compose down'
         }
     }
 }
