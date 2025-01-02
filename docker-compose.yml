@@ -47,7 +47,7 @@ services:
       - PMA_USER=db
       - PMA_PASSWORD=db
     ports:
-      - "8080:80"
+      - "8082:80"
     depends_on:
       - db
 
