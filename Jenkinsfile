@@ -14,6 +14,7 @@ pipeline {
             docker-compose run --rm app composer install
             docker-compose run --rm app cp .env.example .env
             docker-compose run --rm app php artisan key:generate
+            docker-compose run --rm app php artisan migrate --force
                 '''
             }
         }
