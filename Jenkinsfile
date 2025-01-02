@@ -3,11 +3,15 @@ pipeline {
     environment {
         DDEV_PROJECT = 'ec25'
         COMPOSE_PROJECT_NAME = "ec_prod"
+        COMPOSE_HTTP_TIMEOUT = '180' 
     }
 
     stages {
         stage('Build') {
             steps {
+                script {
+                    sh 'sudo chmod 666 /var/run/docker.sock'
+                    }
                 sh '''
                     docker-compose build
                     docker-compose run --rm app composer install --no-dev
