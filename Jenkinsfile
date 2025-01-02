@@ -12,6 +12,7 @@ pipeline {
                 sh '''
                     docker-compose build
                     docker-compose run --rm app composer install --no-dev
+                    docker-compose run --rm app cp .env.example .env
                     docker-compose run --rm app php artisan key:generate
                     docker-compose run --rm app npm install
                     docker-compose run --rm app npm run build
