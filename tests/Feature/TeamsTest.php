@@ -63,6 +63,46 @@ class TeamsTest extends TestCase
 
 
 
+    public function test_teams_cannot_be_created_with_missing_data(): void
+    {
+        $firstResponse = $this->post('/register', [
+            'nickname' => 'UserTest',
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+            'email' => 'user@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'age' => 25,
+            'nationality' => 'French',
+            'role' => 'user',
+            'avatar' => 'path/to/avatar.jpg',
+        ]);
+
+        $firstResponse->assertStatus(204);
+
+        $user = User::where('email', 'user@example.com')->first();
+        $this->assertNotNull($user);
+
+        $teamData = [
+            'owner' => (string) $user->id,
+            'name' => '', // Nom invalide
+            'logo' => 'path/to/logo.jpg',
+            'country' => 'path/to/flag.jpg',
+            'website' => 'https://siteweb.com/',
+            'social' => json_encode([
+                'facebook' => 'https://facebook.com/user',
+                'twitter' => 'https://twitter.com/user',
+                'linkedin' => 'https://linkedin.com/user'
+            ])
+        ];
+
+        $teamResponse = $this->actingAs($user)
+            ->postJson('/api/addTeam', $teamData); // Utilisez postJson
+
+        $teamResponse->assertStatus(422)
+            ->assertJsonValidationErrors(['name']);
+    }
+
 
 
 // TODO AJOUT ET SUPPRESION DE TEAM MEMBERS PAR UN MEMBRE AVEC LES DROIT ET SANS 
