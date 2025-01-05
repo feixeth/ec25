@@ -23,7 +23,7 @@ class Teams extends Model
     
     public function members()
     {
-        return $this->belongsToMany(User::class, 'team_user', 'team_id', 'user_id');
+        return $this->belongsToMany(User::class, 'teams_members', 'team_id', 'user_id');
     }
 
 }

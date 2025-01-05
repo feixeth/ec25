@@ -27,7 +27,7 @@ class TeamsMembersTest extends TestCase
             'password' => bcrypt('password123'),
             'age' => 30,
             'nationality' => 'French',
-            'role' => 'owner',
+            'role' => 'user',
             'avatar' => 'path/to/avatar.jpg',
         ]);
 
@@ -41,7 +41,7 @@ class TeamsMembersTest extends TestCase
             'password' => bcrypt('password123'),
             'age' => 25,
             'nationality' => 'French',
-            'role' => 'coach',
+            'role' => 'user',
             'avatar' => 'path/to/avatar.jpg',
         ]);
 
@@ -62,8 +62,16 @@ class TeamsMembersTest extends TestCase
         // Ajouter le membre
         // Requete API Au controller pour un ajout de membre A FAIRE ICI : 
 
+        $response = $this->postJson("/api/teams/{$team->id}/members", [
+            'user_id' => $user->id,
+        ]);
+
+        $response->assertStatus(200)->assertJson([
+            'message' => 'Member added successfully'
+        ]);
+
         // Vérifier
-        $this->assertDatabaseHas('team_user', [
+        $this->assertDatabaseHas('teams_members', [
             'user_id' => $user->id,
             'team_id' => $team->id,
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Teams;
 use App\Models\TeamsMembers;
 use Illuminate\Http\Request;
 
@@ -26,9 +27,19 @@ class TeamsMembersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, $teamId)
     {
-        //
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id'
+        ]);
+
+        $team = Teams::findOrFail($teamId);
+
+        $team->members()->attach($validated['user_id']);
+
+        return response()->json(['message' => 'Member added successfully'], 200);
+
     }
 
     /**
