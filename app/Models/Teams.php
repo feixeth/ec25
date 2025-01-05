@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+    
 class Teams extends Model
 {
+
+    use HasFactory;
+    
     protected $table = 'teams';
 
     protected $fillable = [
@@ -14,6 +18,12 @@ class Teams extends Model
         'logo',
         'country',
         'website',
-        'social'
+        'social',
     ];
+    
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'team_user', 'team_id', 'user_id');
+    }
+
 }
