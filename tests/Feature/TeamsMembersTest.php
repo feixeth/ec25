@@ -59,9 +59,6 @@ class TeamsMembersTest extends TestCase
             ]),
         ]);
 
-        // Ajouter le membre
-        // Requete API Au controller pour un ajout de membre A FAIRE ICI : 
-
         $response = $this->postJson("/api/teams/{$team->id}/members", [
             'user_id' => $user->id,
         ]);
@@ -70,7 +67,6 @@ class TeamsMembersTest extends TestCase
             'message' => 'Member added successfully'
         ]);
 
-        // Vérifier
         $this->assertDatabaseHas('teams_members', [
             'user_id' => $user->id,
             'team_id' => $team->id,
@@ -80,12 +76,65 @@ class TeamsMembersTest extends TestCase
     /**
      * A basic test for removing members from a team.
      */
-    public function test_members_can_be_remove(): void
-    {
-        $response = $this->get('/');
+    // public function test_members_can_be_removed(): void
+    // {
+    //     // Création de l'utilisateur propriétaire de l'équipe
+    //     $owner = User::factory()->create([
+    //         'nickname' => 'OwnerTest',
+    //         'firstname' => 'Jane',
+    //         'lastname' => 'Doe',
+    //         'email' => 'owner@example.com',
+    //         'password' => bcrypt('password123'),
+    //         'role' => 'user',
+    //     ]);
 
-        $response->assertStatus(200);
-    }
+    //     // Création d'un utilisateur membre
+    //     $user = User::factory()->create([
+    //         'nickname' => 'TeamMemberTest',
+    //         'firstname' => 'John',
+    //         'lastname' => 'Doe',
+    //         'email' => 'teammember@example.com',
+    //         'password' => bcrypt('password123'),
+    //         'role' => 'user',
+    //     ]);
+
+    //     // Création de l'équipe
+    //     $team = Teams::factory()->create([
+    //         'owner' => $owner->id,
+    //         'name' => 'TeamTest',
+    //     ]);
+
+    //     // Ajout du membre à l'équipe
+    //     $response = $this->postJson("/api/teams/{$team->id}/members", [
+    //         'user_id' => $user->id,
+    //     ]);
+
+    //     $response->assertStatus(200)->assertJson([
+    //         'message' => 'Member added successfully',
+    //     ]);
+
+    //     // Vérification que le membre a bien été ajouté
+    //     $this->assertDatabaseHas('team_user', [
+    //         'user_id' => $user->id,
+    //         'team_id' => $team->id,
+    //     ]);
+
+    //     // Suppression du membre
+    //     $response = $this->deleteJson("/api/teams/{$team->id}/members", [
+    //         'user_id' => $user->id,
+    //     ]);
+
+    //     $response->assertStatus(200)->assertJson([
+    //         'message' => 'Member removed successfully',
+    //     ]);
+
+    //     // Vérification que le membre a été supprimé
+    //     $this->assertDatabaseMissing('team_user', [
+    //         'user_id' => $user->id,
+    //         'team_id' => $team->id,
+    //     ]);
+    // }
+
 
     /**
      * A basic test for promote members of a team as the owner.

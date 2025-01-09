@@ -84,8 +84,10 @@ class CoachesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Coaches $coaches)
+    public function destroy(Request $user_id)
     {
-        //
+        $coach = Coaches::findOrFail($user_id);
+        $coach->user()->detach($user_id);
+        return response()->json(['message' => 'Coach removed successfully'], 200);    
     }
 }
