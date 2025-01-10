@@ -13,15 +13,8 @@ class CoachesController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $coaches = Coaches::all();
+        return response()->json($coaches, 200);
     }
 
     /**
@@ -60,34 +53,45 @@ class CoachesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Coaches $coaches)
+    public function show(Request $request) : JsonResponse
     {
-        //
-    }
+        $validated = $request->validate([
+            'user_id' => ['required', 'exists:users,id'],
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Coaches $coaches)
-    {
-        //
+        $coach = Coaches::where('user_id', $validated['user_id'])->firstOrFail();
+
+        return response->json([
+            'data' => [
+                'status' => $coach->status,
+                'achievement' => $coach->achievement,
+                'user' => $coach->user,
+                'game' => $coach->game,
+            ]
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Coaches $coaches)
+    public function update(Request $request, $user_id)
     {
-        //
+        $validated = $request->validate([
+            'status' => ['required','in:Available,Not available,N/A'],
+            'achievement' => ['required','string'],
+        ]);
+        $coach = Coaches::where('user_id', $user_id)->firstOrFail();
+        $coach->update($validated);
+        return response()->json(['message' => 'Coach updated succesfully'], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $user_id)
+    public function destroy($user_id)
     {
-        $coach = Coaches::findOrFail($user_id);
-        $coach->user()->detach($user_id);
-        return response()->json(['message' => 'Coach removed successfully'], 200);    
+        $coach = Coaches::where('user_id', $user_id)->firstOrFail();
+        $coach->delete();
+        return response()->json(['message' => 'Coach succesfully deleted'], 200);
     }
 }

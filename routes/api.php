@@ -16,6 +16,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::post('/addGame', [GamesController::class, 'store']);
 
 Route::post('/addCoach', [CoachesController::class, 'store']);
+Route::put('/updateCoach/{user_id}', [CoachesController::class, 'update']);
 Route::post('/deleteCoach/{user_id}', [CoachesController::class, 'destroy']);
 
 Route::post('/addTeam', [TeamsController::class, 'store']);
