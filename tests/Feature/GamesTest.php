@@ -24,13 +24,12 @@ class GamesTest extends TestCase
             'logo' => 'path/to/logo.png'
         ];
 
-        // Création d'un jeu initial si nécessaire
-        $fakeGame = Games::firstOrCreate([
+        // Création d'un jeu initial avec ID 2
+        Games::create([
             'id' => 2,
-        ], [
             'name' => 'Test Game',
             'code' => 'CS2',
-            'description' => 'Description of the test game',
+            'logo' => 'path/to/logo.png'
         ]);
     }
 
@@ -86,25 +85,33 @@ class GamesTest extends TestCase
     }
 
 
-        public function test_games_can_be_updated(): void
+    public function test_games_can_be_updated(): void
     {
-        $updatedData = [
-            'name' => 'Updated Game',
-            'code' => 'UPD001'
+        // First, create a game record we can update
+        $game = Games::factory()->create([
+            'name' => 'Original Name',
+            'code' => 'ON',
+            'logo' => 'original_logo.png'
+        ]);
+
+        $updateData = [
+            'name' => 'CounterStrike',
+            'code' => 'CS',
         ];
 
-        // Si votre route n'est pas dans un groupe api
-        $this->putJson("/game/2", $updatedData);
+        $response = $this->put('/api/game/' . $game->id, $updateData);
 
         $response->assertStatus(200)
-                ->assertJson(['message' => 'Game updated succesfully']);
+            ->assertJson(['message' => 'Game updated succesfully']);
 
+        // Verify the update in the database
         $this->assertDatabaseHas('games', [
-            'id' => 2,
-            'name' => 'Updated Game',
-            'code' => 'UPD001'
+            'name' => 'CounterStrike',
+            'code' => 'CS',
+            'logo' => 'original_logo.png'
         ]);
     }
+
 
     public function test_games_can_be_deleted(): void
     {
