@@ -13,13 +13,15 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 
 
-Route::post('/addGame', [GamesController::class, 'store']);
+Route::post('/game', [GamesController::class, 'store']);
+Route::put('/game/{game_id}', [GamesController::class, 'update']);
+Route::delete('/game/{game_id}', [GamesController::class, 'destroy']);
 
-Route::post('/addCoach', [CoachesController::class, 'store']);
-Route::put('/updateCoach/{user_id}', [CoachesController::class, 'update']);
-Route::post('/deleteCoach/{user_id}', [CoachesController::class, 'destroy']);
+Route::post('/coach', [CoachesController::class, 'store']);
+Route::put('/coach/{user_id}', [CoachesController::class, 'update']);
+Route::delete('/coach/{user_id}', [CoachesController::class, 'destroy']);
 
-Route::post('/addTeam', [TeamsController::class, 'store']);
+Route::post('/team', [TeamsController::class, 'store']);
 
 Route::post('/teams/{teamId}/members', [TeamsMembersController::class, 'store']);
 Route::delete('/teams/{teamId}/members', [TeamsMembersController::class, 'destroy']);

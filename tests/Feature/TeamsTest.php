@@ -50,7 +50,7 @@ class TeamsTest extends TestCase
         ];
 
         $teamResponse = $this->actingAs($user)
-            ->post('/api/addTeam', $teamData);
+            ->post('/api/team', $teamData);
 
         $teamResponse->assertStatus(201)
             ->assertJson(['message' => 'Team successfully added']);
@@ -97,7 +97,7 @@ class TeamsTest extends TestCase
         ];
 
         $teamResponse = $this->actingAs($user)
-            ->postJson('/api/addTeam', $teamData); // Utilisez postJson
+            ->postJson('/api/team', $teamData); // Utilisez postJson
 
         $teamResponse->assertStatus(422)
             ->assertJsonValidationErrors(['name']);

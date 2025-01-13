@@ -51,37 +51,38 @@ class CoachesTest extends TestCase
 
     public function test_coaches_can_be_created(): void
     {
-        $response = $this->post('/api/addCoach', $this->coachData);
+        $response = $this->post('/api/coach', $this->coachData);
         $response->assertStatus(200)
                  ->assertJson(['message' => 'Coach succesfully added']);
         $this->assertDatabaseHas('coaches', $this->coachData);
     }
 
-    public function test_coaches_can_be_deleted(): void
-    {
-        $this->post('/api/addCoach', $this->coachData);
-
-        $response = $this->post('/api/deleteCoach/' . $this->coachData['user_id']);
-        $response->assertStatus(200)
-                 ->assertJson(['message' => 'Coach succesfully deleted']);
-        $this->assertDatabaseMissing('coaches', ['user_id' => $this->coachData['user_id']]);
-    }
-
     public function test_coach_can_be_updated(): void
     {
-        $this->post('/api/addCoach', $this->coachData);
+        $this->post('/api/coach', $this->coachData);
 
         $updateData = [
             'status' => 'Not available',
             'achievement' => 'Updated achievement',
         ];
 
-        $response = $this->put('/api/updateCoach/' . $this->coachData['user_id'], $updateData);
+        $response = $this->put('/api/coach/' . $this->coachData['user_id'], $updateData);
 
         $response->assertStatus(200)
                  ->assertJson(['message' => 'Coach updated succesfully']);
 
         $this->assertDatabaseHas('coaches', array_merge($this->coachData, $updateData));
     }
+
+        public function test_coaches_can_be_deleted(): void
+    {
+        $this->post('/api/coach', $this->coachData);
+
+        $response = $this->delete('/api/coach/' . $this->coachData['user_id']);
+        $response->assertStatus(200)
+                 ->assertJson(['message' => 'Coach succesfully deleted']);
+        $this->assertDatabaseMissing('coaches', ['user_id' => $this->coachData['user_id']]);
+    }
+
 
 }
