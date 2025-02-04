@@ -45,13 +45,13 @@ class MessagesController extends Controller
     {
         $validated = $request->validate([
             'recipient_id' => 'required|exists:users,id',
-            'message' => 'required|string|max:10000'
+            'content' => 'required|string|max:10000'
         ]);
 
         $message = Messages::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $validated['recipient_id'],
-            'messages' => $validated['message']
+            'content' => $validated['content']
         ]);
 
         // Optionnel : Notification en temps réel

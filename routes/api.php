@@ -5,22 +5,27 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GamesController;
 use App\Http\Controllers\TeamsController;
 use App\Http\Controllers\CoachesController;
+use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\TeamsMembersController;
+use App\Http\Controllers\ConversationsController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
-
-    Route::apiResource('conversations', ConversationController::class);
-    Route::post('conversations/{conversation}/messages', [MessageController::class, 'store']);
-    Route::post('conversations/{conversation}/read', [MessageController::class, 'markAsRead']);
-
-    Route::get('messages', [MessageController::class, 'index']);
-    Route::get('messages/unread', [MessageController::class, 'getUnreadCount']);
-    Route::get('messages/conversation/{user}', [MessageController::class, 'getConversation']);
-    Route::post('messages', [MessageController::class, 'store']);
-    Route::post('messages/read/{user}', [MessageController::class, 'markAsRead']);
-    
 });
+
+Route::get('/conversations/{conversation}', [ConversationsController::class, 'show']);
+Route::post('conversations', [ConversationsController::class, 'store']);
+Route::post('conversations/{conversation}/messages', [MessagesController::class, 'store']);
+Route::post('conversations/{conversation}/read', [MessagesController::class, 'markAsRead']);
+
+
+
+
+Route::get('messages', [MessagesController::class, 'index']);
+Route::get('messages/unread', [MessagesController::class, 'getUnreadCount']);
+Route::get('messages/conversation/{user}', [MessagesController::class, 'getConversation']);
+Route::post('messages', [MessagesController::class, 'store']);
+Route::post('messages/read/{user}', [MessagesController::class, 'markAsRead']);
 
 Route::post('/game', [GamesController::class, 'store']);
 Route::put('/game/{game_id}', [GamesController::class, 'update']);

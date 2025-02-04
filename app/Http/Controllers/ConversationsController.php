@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Conversations;
 
 class ConversationsController extends Controller
 {
@@ -16,42 +18,43 @@ class ConversationsController extends Controller
 
     public function show(Conversations $conversation)
     {
-        // check si user fait partie de la conv
+        // Vérifie que l'utilisateur est un participant de la conversation
         abort_if(!$conversation->participants->contains(auth()->id()), 403);
 
-        return $conversation->load(['messages.sender', 'participants']);
+        // Charge les messages et les participants
+        $conversation->load(['messages', 'participants']);
+
+        return response()->json($conversation);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'subject' => 'required|string',
-            'message' => 'required|string',
-            'participants' => 'required|array',
-            'participants.*' => 'exists:users,id'
+            'content' => 'required|string',
+            'recipient_id' => 'required|exists:users,id'  // On valide le recipient_id
         ]);
 
-        $conversation = DB::transaction(function () use ($validated) {
-            $conversation = Conversations::create([
-                'subject' => $validated['subject']
-            ]);
+        // Création de la conversation
+        $conversation = Conversations::create([
+            'subject' => $validated['subject']
+        ]);
 
-            // ajout des acteurs
-            $participants = collect($validated['participants'])
-                ->push(auth()->id())
-                ->unique();
-            
-            $conversation->participants()->attach($participants);
+        // Ajout des deux participants (sender et recipient)
+        $conversation->participants()->attach([
+            auth()->id(),
+            $validated['recipient_id']
+        ]);
 
-            // first msg
-            $conversation->messages()->create([
-                'content' => $validated['message'],
-                'user_id' => auth()->id()
-            ]);
+        // Création du message avec sender_id ET recipient_id
+        $conversation->messages()->create([
+            'content' => $validated['content'],
+            'sender_id' => auth()->id(),
+            'recipient_id' => $validated['recipient_id']
+        ]);
 
-            return $conversation;
-        });
-
-        return $conversation->load(['messages.sender', 'participants']);
+        $conversation->load(['messages.sender', 'participants']);
+        return response()->json($conversation, 201);
     }
+
 }
