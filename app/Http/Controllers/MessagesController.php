@@ -74,9 +74,9 @@ class MessagesController extends Controller
         }
     
         // Marquer comme lu
-        $message->update(['is_read' => true]);
+        return $message->update(['is_read' => true]);
     
-        return response()->json(['message' => 'Message marked as read']);
+        //return response()->json(['message' => 'Message marked as read']);
     }
     
     
