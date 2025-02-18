@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Messages;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class MessagesController extends Controller
 {
@@ -29,7 +30,7 @@ class MessagesController extends Controller
     {
         $user_id = auth()->id();
         
-        return Messages::where(function($query) use ($user_id, $otherUser) {
+        $messages = Messages::where(function($query) use ($user_id, $otherUser) {
             $query->where('sender_id', $user_id)
                   ->where('recipient_id', $otherUser->id);
         })->orWhere(function($query) use ($user_id, $otherUser) {
@@ -38,20 +39,25 @@ class MessagesController extends Controller
         })
         ->with(['sender', 'recipient'])
         ->latest()
-        ->paginate(50);
+        ->get();
+        
+        return response()->json(['data' => $messages]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'recipient_id' => 'required|exists:users,id',
-            'content' => 'required|string|max:10000'
+            'content' => 'required|string|max:10000',
+            'conversations_id'=> 'required',
         ]);
 
         $message = Messages::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $validated['recipient_id'],
-            'content' => $validated['content']
+            'content' => $validated['content'],
+            'conversations_id' => $validated['conversations_id']
+
         ]);
 
         // Optionnel : Notification en temps réel

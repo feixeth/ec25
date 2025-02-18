@@ -34,15 +34,6 @@ class MessagesTest extends TestCase
             'recipient_id' => $otherUser->id,
             'conversations_id' => $conversation->id
         ]);
-
-        // Manque le conversation user model et controller ou non ? reflechis 
-        // Car ici pour checker ces messages on a besoin de creer le message, et donc de creer la conversation mais 
-        // egalement l entree dans latable conversation_users , donc deux entree, une entree id 1 avec le user 1 et l'id de conv 1
-        // et une netree id 2 user 2 conv 1
-        // Puis on retourne la liste des conversation de l'utilisateur avec une methode controller 
-
-
-
         $response = $this->getJson('/api/messages');
         
         $response->assertStatus(200)
@@ -58,9 +49,11 @@ class MessagesTest extends TestCase
     {
         $this->actingAs($this->user);
         $recipient = User::factory()->create();
+        $recipientConv = Conversations::factory()->create();
 
         $response = $this->postJson('/api/messages', [
             'recipient_id' => $recipient->id,
+            'conversations_id' => $recipientConv->id,
             'content' => 'Test message'
         ]);
 
@@ -82,37 +75,42 @@ class MessagesTest extends TestCase
     {
         $this->actingAs($this->user);
         $otherUser = User::factory()->create();
+        $recipientConv = Conversations::factory()->create();
         
         Messages::factory(5)->create([
             'sender_id' => $this->user->id,
-            'recipient_id' => $otherUser->id
+            'recipient_id' => $otherUser->id,
+            'conversations_id' => $recipientConv->id  // Use ID, not object
         ]);
-
-        $response = $this->getJson("/api/messages/conversation/{$otherUser->id}");
         
+        $response = $this->getJson("/api/messages/conversation/{$otherUser->id}");
         $response->assertStatus(200)
-                ->assertJsonCount(5, 'data')
-                ->assertJsonStructure([
-                    'data' => [
-                        '*' => ['id', 'content', 'sender_id', 'recipient_id', 'created_at']
-                    ]
-                ]);
+                 ->assertJsonCount(5, 'data')
+                 ->assertJsonStructure([
+                     'data' => [
+                         '*' => ['id', 'content', 'sender_id', 'recipient_id', 'created_at']
+                     ]
+                 ]);
     }
 
     public function test_user_can_mark_messages_as_read()
     {
         $this->actingAs($this->user);
-        $sender = User::factory()->create();
-        
-        $messages = Messages::factory(3)->create([
-            'sender_id' => $sender->id,
+        $otherUser = User::factory()->create();
+        $conversation = Conversations::factory()->create();
+    
+        Messages::factory(3)->create([
+            'sender_id' => $otherUser->id,
             'recipient_id' => $this->user->id,
-            'is_read' => false
+            'is_read' => false,
+            'conversations_id' => $conversation->id
         ]);
-
-        $response = $this->postJson("/api/messages/read/{$sender->id}");
         
+        $response = $this->putJson("/api/messages/mark-as-read/{$otherUser->id}");
         $response->assertStatus(200);
-        $this->assertEquals(0, Messages::where('is_read', false)->count());
+        $this->assertEquals(0, Messages::where('sender_id', $otherUser->id)
+                                 ->where('recipient_id', $this->user->id)
+                                 ->where('is_read', false)
+                                 ->count());
     }
 }

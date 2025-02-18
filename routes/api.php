@@ -23,9 +23,13 @@ Route::post('conversations/{conversation}/read', [MessagesController::class, 'ma
 
 Route::get('messages', [MessagesController::class, 'index']);
 Route::get('messages/unread', [MessagesController::class, 'getUnreadCount']);
-Route::get('messages/conversation/{user}', [MessagesController::class, 'getConversation']);
+Route::get('messages/conversation/{otherUser}', [MessagesController::class, 'getConversation']);
 Route::post('messages', [MessagesController::class, 'store']);
 Route::post('messages/read/{user}', [MessagesController::class, 'markAsRead']);
+
+
+
+
 
 Route::post('/game', [GamesController::class, 'store']);
 Route::put('/game/{game_id}', [GamesController::class, 'update']);
