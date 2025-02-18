@@ -66,16 +66,20 @@ class MessagesController extends Controller
         return $message->load(['sender', 'recipient']);
     }
 
-    public function markAsRead(User $otherUser)
+    public function markMessageAsRead(Messages $message)
     {
-        Messages::where('sender_id', $otherUser->id)
-              ->where('recipient_id', auth()->id())
-              ->where('is_read', false)
-              ->update(['is_read' => true]);
-
-        return response()->json(['message' => 'Messages marked as read']);
+        // l'utilisateur est bien le destinataire
+        if ($message->recipient_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+    
+        // Marquer comme lu
+        $message->update(['is_read' => true]);
+    
+        return response()->json(['message' => 'Message marked as read']);
     }
-
+    
+    
     public function getUnreadCount()
     {
         return response()->json([

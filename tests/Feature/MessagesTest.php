@@ -93,24 +93,27 @@ class MessagesTest extends TestCase
                  ]);
     }
 
-    public function test_user_can_mark_messages_as_read()
+    public function test_user_can_mark_selected_messages_as_read()
     {
         $this->actingAs($this->user);
         $otherUser = User::factory()->create();
         $conversation = Conversations::factory()->create();
     
-        Messages::factory(3)->create([
+        $messages = Messages::factory(3)->create([
             'sender_id' => $otherUser->id,
             'recipient_id' => $this->user->id,
             'is_read' => false,
             'conversations_id' => $conversation->id
         ]);
-        
-        $response = $this->putJson("/api/messages/mark-as-read/{$otherUser->id}");
-        $response->assertStatus(200);
-        $this->assertEquals(0, Messages::where('sender_id', $otherUser->id)
-                                 ->where('recipient_id', $this->user->id)
-                                 ->where('is_read', false)
-                                 ->count());
+    
+        // Marquer uniquement le premier message comme lu
+        $this->postJson("/api/messages/read/{$messages[0]->id}")
+             ->assertStatus(200);
+    
+        // Vérifier que le premier message est bien lu et les autres non
+        $this->assertTrue(Messages::find($messages[0]->id)->is_read);
+        $this->assertFalse(Messages::find($messages[1]->id)->is_read);
+        $this->assertFalse(Messages::find($messages[2]->id)->is_read);
     }
+    
 }

@@ -25,8 +25,7 @@ Route::get('messages', [MessagesController::class, 'index']);
 Route::get('messages/unread', [MessagesController::class, 'getUnreadCount']);
 Route::get('messages/conversation/{otherUser}', [MessagesController::class, 'getConversation']);
 Route::post('messages', [MessagesController::class, 'store']);
-Route::post('messages/read/{user}', [MessagesController::class, 'markAsRead']);
-
+Route::post('/messages/read/{message}', [MessagesController::class, 'markMessageAsRead']);
 
 
 
