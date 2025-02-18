@@ -28,7 +28,23 @@ class TeamsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+
+            'owner' => ['required', 'string', 'max:191'],
+            'name' => ['required', 'string', 'max:20'],
+            'logo' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
+            'website' => ['nullable', 'string', 'max:255'],
+            'social' => ['nullable', 'json', 'max:255']
+        ]);
+        
+        $team = Teams::create($validated);
+        
+        if (!$team) {
+            \Log::error('Failed to create game', ['data' => $validated]);
+        }
+        
+        return response()->json(['message' => 'Team successfully added'], 201);
     }
 
     /**

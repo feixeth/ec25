@@ -15,40 +15,93 @@ class TeamsTest extends TestCase
      */
     public function test_teams_can_be_created(): void
     {
-        $user = User::factory()->create([
+        $firstResponse = $this->post('/register', [
             'nickname' => 'UserTest',
             'firstname' => 'John',
             'lastname' => 'Doe',
             'email' => 'user@example.com',
-            'password' => bcrypt('password123'),
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
             'age' => 25,
             'nationality' => 'French',
             'role' => 'user',
             'avatar' => 'path/to/avatar.jpg',
         ]);
 
-        $firstResponse = $this->post('/api/register', $user);
-        $firstResponse->assertStatus(200)
-                ->assertJson(['message' => ' User succesfully added']);
-        $this->assertDatabaseHas('coaches', $coachData);
+        // Pour un code 204, on vérifie juste le status
+        $firstResponse->assertStatus(204);
 
-        $team = Team::create([
-            'owner' => $this->user,
+        $user = User::where('email', 'user@example.com')->first();
+        $this->assertNotNull($user);
+
+        // Pour la création d'équipe, pas besoin de Team::create()
+        // car on veut tester l'API, pas créer directement en base
+        $teamData = [
+            'owner' => (string) $user->id,
             'name' => 'TeamName',
             'logo' => 'path/to/logo.jpg',
             'country' => 'path/to/flag.jpg',
             'website' => 'https://siteweb.com/',
-            'social' => 'https://siteweb.com/'
-            ]);
+            'social' => json_encode([
+                'facebook' => 'https://facebook.com/user',
+                'twitter' => 'https://twitter.com/user',
+                'linkedin' => 'https://linkedin.com/user'
+            ])
+        ];
 
-        $secondResponse = $this->post('/api/addTeam', $team);
-        $secondResponse->assertStatus(200)
-                ->assertJson(['message' => ' Team succesfully added']);
-        $this->assertDatabaseHas('teams', $team);
+        $teamResponse = $this->actingAs($user)
+            ->post('/api/team', $teamData);
 
+        $teamResponse->assertStatus(201)
+            ->assertJson(['message' => 'Team successfully added']);
+
+        $this->assertDatabaseHas('teams', [
+            'name' => 'TeamName',
+            'owner' => $user->id,
+        ]);
     }
 
 
+
+    public function test_teams_cannot_be_created_with_missing_data(): void
+    {
+        $firstResponse = $this->post('/register', [
+            'nickname' => 'UserTest',
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+            'email' => 'user@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'age' => 25,
+            'nationality' => 'French',
+            'role' => 'user',
+            'avatar' => 'path/to/avatar.jpg',
+        ]);
+
+        $firstResponse->assertStatus(204);
+
+        $user = User::where('email', 'user@example.com')->first();
+        $this->assertNotNull($user);
+
+        $teamData = [
+            'owner' => (string) $user->id,
+            'name' => '', // Nom invalide
+            'logo' => 'path/to/logo.jpg',
+            'country' => 'path/to/flag.jpg',
+            'website' => 'https://siteweb.com/',
+            'social' => json_encode([
+                'facebook' => 'https://facebook.com/user',
+                'twitter' => 'https://twitter.com/user',
+                'linkedin' => 'https://linkedin.com/user'
+            ])
+        ];
+
+        $teamResponse = $this->actingAs($user)
+            ->postJson('/api/team', $teamData); // Utilisez postJson
+
+        $teamResponse->assertStatus(422)
+            ->assertJsonValidationErrors(['name']);
+    }
 
 
 

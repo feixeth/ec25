@@ -10,10 +10,11 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    docker-compose build
-                    docker-compose run --rm app composer install --no-dev
-                    docker-compose run --rm app cp .env.example .env
-                    docker-compose run --rm app php artisan key:generate
+            docker-compose build
+            docker-compose run --rm app composer install
+            docker-compose run --rm app cp .env.example .env
+            docker-compose run --rm app php artisan key:generate
+            docker-compose run --rm app php artisan migrate --force
                 '''
             }
         }
@@ -27,6 +28,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
+                    docker-compose run --rm app composer install --no-dev
                     docker-compose down
                     docker-compose up -d
                     docker-compose run --rm app php artisan migrate --force
