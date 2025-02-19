@@ -13,12 +13,11 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
 Route::get('/conversations/{conversation}', [ConversationsController::class, 'show']);
 Route::post('conversations', [ConversationsController::class, 'store']);
 Route::post('conversations/{conversation}/messages', [MessagesController::class, 'store']);
 Route::post('conversations/{conversation}/read', [MessagesController::class, 'markAsRead']);
-
-
 
 
 Route::get('messages', [MessagesController::class, 'index']);
@@ -28,17 +27,16 @@ Route::post('messages', [MessagesController::class, 'store']);
 Route::post('/messages/read/{message}', [MessagesController::class, 'markMessageAsRead']);
 
 
-
-
 Route::post('/game', [GamesController::class, 'store']);
 Route::put('/game/{game_id}', [GamesController::class, 'update']);
 Route::delete('/game/{game_id}', [GamesController::class, 'destroy']);
 
+Route::get('/coach', [CoachesController::class, 'index']);
 Route::post('/coach', [CoachesController::class, 'store']);
 Route::put('/coach/{user_id}', [CoachesController::class, 'update']);
 Route::delete('/coach/{user_id}', [CoachesController::class, 'destroy']);
 
-Route::post('/team', [TeamsController::class, 'store']);
 
+Route::post('/team', [TeamsController::class, 'store']);
 Route::post('/teams/{teamId}/members', [TeamsMembersController::class, 'store']);
 Route::delete('/teams/{teamId}/members', [TeamsMembersController::class, 'destroy']);
