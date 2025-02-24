@@ -11,7 +11,8 @@ database:
     version: "10.11"
 use_dns_when_possible: true
 composer_version: "2"
-web_environment: []
+web_environment:
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173
 corepack_enable: false
 
 # Key features of DDEV's config.yaml:
