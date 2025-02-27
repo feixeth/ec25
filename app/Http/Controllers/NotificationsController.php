@@ -8,57 +8,77 @@ use Illuminate\Http\Request;
 class NotificationsController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource for the user asking .
      */
     public function index()
     {
-        //
+        $user = auth()->user();
+        if(!$user){
+            return response()->json([
+                'error' => 'invalid credentials'
+            ], 401);
+        } else {
+            $notifications = Notifications::where('user_id', $user->id)->get();
+            return response()->json([
+                'data' => $notifications,
+            ]);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+
 
     /**
-     * Store a newly created resource in storage.
+     * Display unread notif.
      */
-    public function store(Request $request)
+    public function getUnreadCount(Notifications $notifications)
     {
-        //
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'error' => 'Invalid credentials'
+            ], 401);
+        }
+
+        // Compter uniquement les notifications non lues de l'utilisateur connecté
+        $unreadCount = Notifications::where('user_id', $user->id)
+                                    ->where('is_read', false)
+                                    ->count();
+
+        return response()->json([
+            'count' => $unreadCount
+        ], 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Notifications $notifications)
-    {
-        //
-    }
+
 
     /**
-     * Show the form for editing the specified resource.
+     * MArk as read a notifications.
      */
-    public function edit(Notifications $notifications)
+    public function markAsRead(Notifications $notification)
     {
-        //
-    }
+        $user = auth()->user();
+        
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Notifications $notifications)
-    {
-        //
+        if ($notification->user_id !== $user->id) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $notification->update(['is_read' => true]);
+
+        return response()->json([
+            'message' => 'Notification marked as read',
+            'data' => $notification
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Notifications $notifications)
+    public function deleteNotifications(Notifications $notifications)
     {
         //
     }

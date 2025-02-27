@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Reports;
 use App\Models\Conversations;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -59,5 +60,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Conversation::class)
             ->withPivot('last_read')
             ->withTimestamps();
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(Reports::class);
     }
 }

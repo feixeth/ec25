@@ -8,6 +8,7 @@ use App\Http\Controllers\CoachesController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\TeamsMembersController;
 use App\Http\Controllers\ConversationsController;
+use App\Http\Controllers\NotificationsController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -37,6 +38,18 @@ Route::put('/coach/{user_id}', [CoachesController::class, 'update']);
 Route::delete('/coach/{user_id}', [CoachesController::class, 'destroy']);
 
 
+
+Route::middleware('auth:sanctum')->prefix('notifications')->group(function(){
+    Route::get('/', [NotificationsController::class, 'index']);
+    Route::post('/{notification}/read', [NotificationsController::class, 'markAsRead']);
+    Route::get('/unread-count', [NotificationsController::class, 'getUnreadCount']);
+    //Route::delete('/notifications/{user_id}', [NotificationsController::class, 'destroy']);
+});
+
+
+
 Route::post('/team', [TeamsController::class, 'store']);
 Route::post('/teams/{teamId}/members', [TeamsMembersController::class, 'store']);
 Route::delete('/teams/{teamId}/members', [TeamsMembersController::class, 'destroy']);
+
+
