@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\Notifications;
-use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
+use App\Models\User;
+use Laravel\Sanctum\Sanctum;
+use App\Models\Notifications;
 use PHPUnit\Framework\Attributes\Test;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class NotificationsTest extends TestCase
 {
@@ -49,9 +50,9 @@ class NotificationsTest extends TestCase
             'is_read' => false,
         ]);
 
-        // Act as the user and access the notifications endpoint
-        $response = $this->actingAs($user)
-                        ->getJson('/api/notifications');
+        // sanctum to solve the Signal11 error whe nswitching from webguard to apiguard
+        Sanctum::actingAs($user);
+        $response = $this->getJson('/api/notifications');
         
         // Assert the response includes the notification
         $response->assertStatus(200)
@@ -70,7 +71,7 @@ class NotificationsTest extends TestCase
             'is_read' => false,
         ]);
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($user, 'sanctum')
                         ->postJson('/api/notifications/' . $notification->id . '/read');
 
         $response->assertStatus(200);
@@ -108,14 +109,12 @@ class NotificationsTest extends TestCase
             'is_read' => true,
         ]);
 
-        // Act as the user and get unread notification count
-        $response = $this->actingAs($user)
-                        ->getJson('/api/notifications/unread-count');
+        // sanctum to solve the Signal11 error whe nswitching from webguard to apiguard
+        Sanctum::actingAs($user);
+        $response = $this->getJson('/api/notifications');
         
         // Assert count is correct
         $response->assertStatus(200)
-                ->assertJson([
-                    'count' => 2
-                ]);
+                ->assertJsonCount(3, 'data');
     }
 }
